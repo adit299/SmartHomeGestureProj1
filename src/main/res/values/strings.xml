@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">SmrtHomeGestureApp</string>
+
+    <string-array name="gestures_array">
+        <item>Turn on lights</item>
+        <item>Turn off lights</item>
+        <item>Turn on fan</item>
+        <item>Turn off fan</item>
+        <item>Increase fan speed</item>
+        <item>Decrease fan speed</item>
+        <item>Set Thermostat to specified temperature</item>
+        <item>Gesture Digit 0</item>
+        <item>Gesture Digit 1</item>
+        <item>Gesture Digit 2</item>
+        <item>Gesture Digit 3</item>
+        <item>Gesture Digit 4</item>
+        <item>Gesture Digit 5</item>
+        <item>Gesture Digit 6</item>
+        <item>Gesture Digit 7</item>
+        <item>Gesture Digit 8</item>
+        <item>Gesture Digit 9</item>
+    </string-array>
+
+
+</resources>
