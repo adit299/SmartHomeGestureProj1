@@ -3,6 +3,7 @@ package com.example.smrthomegestureapp;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.widget.Button;
 import android.widget.VideoView;
@@ -13,15 +14,23 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
 
 public class GestureDemoViewsActivity extends AppCompatActivity {
 
     private VideoView videoview;
     private Uri uri;
+    private String gestureName;
     private Button replayButton;
     private Button practiceButton;
     private Intent recordVideoIntent;
-    public static final int REQUEST_CODE = 1;
+
+    public static final String VIDEO_FILE = "videoFile";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +52,11 @@ public class GestureDemoViewsActivity extends AppCompatActivity {
         // TODO: Add cases for all the remaining videos
         switch(selectedGesture) {
             case "Gesture Digit 0":
+                gestureName = "Num0";
                 uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.h0);
                 break;
             case "Gesture Digit 1":
+                gestureName = "Num1";
                 uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.h1);
                 break;
             default:
@@ -65,10 +76,15 @@ public class GestureDemoViewsActivity extends AppCompatActivity {
                 Uri data = o.getData().getData();
                 if(null == data) {
                     System.out.println("I am null!");
+                    return;
                     // Handle the error
                 }
-                System.out.println(data.toString());
+                // System.out.println(data.toString());
                 // Send URI to third screen for upload
+                File savedFile = saveFileWithUri(data, gestureName, "1");
+                Intent intent = new Intent(GestureDemoViewsActivity.this, UploadVideoActivity.class);
+                intent.putExtra(VIDEO_FILE, savedFile);
+                startActivity(intent);
             }
         });
 
@@ -78,9 +94,26 @@ public class GestureDemoViewsActivity extends AppCompatActivity {
             // Use MediaStore.EXTRA_OUTPUT to specify how the file should be stored (name, etc.)
             mGetVideoContent.launch(recordVideoIntent);
         });
+    }
 
+    private File saveFileWithUri(Uri uri, String gestureType, String practiceNo)
+    {
+        String fileName = gestureType + "_" + "PRACTICE_" + practiceNo + "_KRISHNAN.mp4";
+        File savedFile;
 
+        try (InputStream in = getContentResolver().openInputStream(uri)) {
+            savedFile = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DCIM), fileName);
+            if(!savedFile.createNewFile())
+            {
+                System.out.println("An error occurred in creating the file");
+            }
+            savedFile.deleteOnExit();
+            Files.copy(in, savedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            System.out.println("An error occurred when writing out to the file");
+            throw new RuntimeException(e);
+        }
 
-
+        return savedFile;
     }
 }
